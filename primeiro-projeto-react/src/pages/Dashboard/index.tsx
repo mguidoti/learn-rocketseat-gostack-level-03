@@ -4,7 +4,7 @@ import { FiChevronRight } from 'react-icons/fi';
 
 import logoImg from '../../assets/logo.svg';
 
-import { Title, Form, Repositories } from './styles';
+import { Title, Form, Repositories, Error } from './styles';
 
 import api from '../../services/Api';
 // Same as function Dashboard() {}, but with the second way, I can more easily
@@ -22,6 +22,7 @@ interface Repository {
 const Dashboard: React.FunctionComponent = () => {
   const [newRepo, setNewRepo] = useState('');
   const [repositories, setRepositories] = useState<Repository[]>([]);
+  const [inputError, setInputError] = useState('');
 
   async function handleAddRepository(
     event: FormEvent<HTMLFormElement>,
@@ -30,12 +31,22 @@ const Dashboard: React.FunctionComponent = () => {
     // the form button
     event.preventDefault();
 
-    const response = await api.get<Repository>(`/repos/${newRepo}`);
+    if (!newRepo) {
+      setInputError('Digite autor/nome do repositório.');
+      return;
+    }
 
-    const repository = response.data;
+    try {
+      const response = await api.get<Repository>(`/repos/${newRepo}`);
 
-    setRepositories([...repositories, repository]);
-    setNewRepo('');
+      const repository = response.data;
+
+      setRepositories([...repositories, repository]);
+      setNewRepo('');
+      setInputError('');
+    } catch (err) {
+      setInputError('Erro na busca por este repositório');
+    }
   }
 
   return (
@@ -43,7 +54,7 @@ const Dashboard: React.FunctionComponent = () => {
       <img src={logoImg} alt="Github Explorer" />
       <Title>Explore Repositórios no GitHub</Title>
 
-      <Form onSubmit={handleAddRepository}>
+      <Form hasError={!!inputError} onSubmit={handleAddRepository}>
         <input
           value={newRepo}
           onChange={e => setNewRepo(e.target.value)}
@@ -51,6 +62,8 @@ const Dashboard: React.FunctionComponent = () => {
         />
         <button type="submit">Pesquisar</button>
       </Form>
+
+      {inputError && <Error>{inputError}</Error>}
 
       <Repositories>
         {repositories.map(repository => (
