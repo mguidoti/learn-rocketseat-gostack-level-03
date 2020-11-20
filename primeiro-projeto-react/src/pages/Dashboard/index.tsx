@@ -2,11 +2,13 @@ import React, { useState, FormEvent, useEffect } from 'react';
 
 import { FiChevronRight } from 'react-icons/fi';
 
+import { Link } from 'react-router-dom';
 import logoImg from '../../assets/logo.svg';
 
 import { Title, Form, Repositories, Error } from './styles';
 
 import api from '../../services/Api';
+
 // Same as function Dashboard() {}, but with the second way, I can more easily
 // define type
 
@@ -84,7 +86,10 @@ const Dashboard: React.FunctionComponent = () => {
 
       <Repositories>
         {repositories.map(repository => (
-          <a key={repository.full_name} href="teste">
+          <Link
+            key={repository.full_name}
+            to={`/repository/${repository.full_name}`}
+          >
             <img
               src={repository.owner.avatar_url}
               alt={repository.owner.login}
@@ -94,7 +99,7 @@ const Dashboard: React.FunctionComponent = () => {
               <p>{repository.description}</p>
             </div>
             <FiChevronRight />
-          </a>
+          </Link>
         ))}
       </Repositories>
     </>
